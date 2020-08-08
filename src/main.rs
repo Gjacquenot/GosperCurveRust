@@ -129,76 +129,13 @@ fn generate_level(level: &Level) -> Vec<(f32, f32)>
     res
 }
 
-
-// res = {0: {'s': 7.0**0.5, 't': ['a'], 'd': [0]}}
-
-fn function2(d1: &mut Vec<i32>)
+fn create_gosper_fractal(max_level: u8) -> Vec<Level>
 {
-    fn f_add_modulo6 (m: i32, d: i32) -> i32 { m + d } // [(m + e) % 6 for e in d]
-    for x in d1 {
-        *x = f_add_modulo6(42, *x);
-    }
-}
-
-fn create_gosper_fractal(max_level: u8)
-{
-    // Segment type and directions for pattern 1
-    let t1 = "abbaaab";
-    let mut d1 = vec![0, 5, 3, 4, 0, 0, 1];
-
-    // Segment type and directions for pattern 2
-    let t2 = "abbbaab";
-    let d2 = vec![1, 0, 0, 4, 3, 5, 0];
-
-    // d1.push(4);
-    // d2.push(4);
-    // vec.push(4);
-
-    //let mut res = {0: {'s': 7.0**0.5,
-    //                   't': ['a'],
-    //                   'd': [0]}};
-
-    let k1 = 0.5_f64;
-    let k2 = 3.0_f64.sqrt() / 2.0_f64;
-    println!(
-        "Today, run for {} minutes!",k2
-    );
-
-    function2(&mut d1);
-
-    for x in d1 {
-        println!("{}", x);
-    }
-
-    // let k = 3;
-    // match k {
-    //     0 => 1.0,
-    //     1 => k1,
-    //     2 => -k1,
-    //     3 => -1.0,
-    //     4 => -k1,
-    //     5 => +k1
-    // }
-}
-
-
-fn main2() {
-    println!("Hello, world!");
-    create_gosper_fractal(6);
-
-    println!("{:?}", create_initial_level());
     let mut levels = create_the_vector_of_levels();
-    append_new_level(&mut levels);
-    //append_new_level(&mut levels);
-    //append_new_level(&mut levels);
-    //append_new_level(&mut levels);
-    println!("{:?}", levels);
-    println!("{:?}", cosinus(2_u8));
-    println!("{:?}", cosinus(4_u8));
-    if let Some(last_level) = levels.last()
-    {
-        generate_level(last_level);
+    for _i in 1..max_level {
+        append_new_level(&mut levels);
     }
+    levels
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -213,21 +150,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     chart.configure_mesh().draw()?;
 
-    // chart
-    //     .draw_series(LineSeries::new(
-    //         (-50..=50).map(|x| x as f32 / 50.0).map(|x| (x, x * x)),
-    //         &RED,
-    //     ))?
-    //     .label("y = x^2")
-    //     .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
-
-    let mut levels = create_the_vector_of_levels();
-    append_new_level(&mut levels);
-    append_new_level(&mut levels);
-    append_new_level(&mut levels);
-    append_new_level(&mut levels);
-    append_new_level(&mut levels);
-    // append_new_level(&mut levels);
+    let levels = create_gosper_fractal(5_u8);
     if let Some(last_level) = levels.last()
     {
         chart
@@ -243,6 +166,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .background_style(&WHITE.mix(0.8))
         .border_style(&BLACK)
         .draw()?;
-    main2();
     Ok(())
 }
