@@ -24,10 +24,7 @@ fn create_initial_level() -> Level
 
 fn create_the_vector_of_levels() -> Vec<Level>
 {
-    let mut levels = Vec::<Level>::new();
-    let initial_level = create_initial_level();
-    levels.push(initial_level);
-    levels
+    vec![create_initial_level()]
 }
 
 fn create_new_level(source_level: &Level) -> Level
@@ -64,8 +61,8 @@ fn create_new_level(source_level: &Level) -> Level
         }
     }
     Level{scale: source_level.scale / 7.0_f64.sqrt(),
-        directions: directions,
-        types: types
+          directions: directions,
+          types: types
       }
 }
 
@@ -73,7 +70,8 @@ fn append_new_level(levels: &mut Vec<Level>)
 {
     if let Some(last_level) = levels.last()
     {
-        levels.push(create_new_level(last_level));
+        let new_level = create_new_level(last_level);
+        levels.push(new_level);
     }
 }
 
