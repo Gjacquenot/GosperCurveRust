@@ -1,13 +1,14 @@
 use plotters::prelude::*;
 
-#[derive(Debug)]
+// #[derive(Debug)]
 enum SegmentType {
     Type1,
     Type2,
 }
 
-#[derive(Debug)]
+// #[derive(Debug)]
 struct Level {
+    id: u8,
     scale: f64,
     directions: Vec<u8>,
     types: Vec<SegmentType>
@@ -16,7 +17,8 @@ struct Level {
 
 fn create_initial_level() -> Level
 {
-    Level{scale: 7.0_f64.sqrt() / 2.0_f64,
+    Level{id: 0_u8,
+          scale: 7.0_f64.sqrt() / 2.0_f64,
           directions: vec![0_u8],
           types: vec![SegmentType::Type1]
         }
@@ -60,7 +62,8 @@ fn create_new_level(source_level: &Level) -> Level
             }
         }
     }
-    Level{scale: source_level.scale / 7.0_f64.sqrt(),
+    Level{id: source_level.id + 1_u8,
+          scale: source_level.scale / 7.0_f64.sqrt(),
           directions: directions,
           types: types
       }
@@ -120,9 +123,15 @@ fn generate_level(level: &Level) -> Vec<(f32, f32)>
         x[i + 1] = x[i] + scale * cosinus(level.directions[i]);
         y[i + 1] = y[i] + scale * sinus(level.directions[i]);
     }
+
+    let index = level.id as f64;
+    let alpha = index * ((3.0_f64.sqrt() / 5.0).atan());
+    let cos_alpha = alpha.cos();
+    let sin_alpha = alpha.sin();
     for i in 0..(n+1)
     {
-        res[i]= (x[i] as f32, y[i] as f32);
+        res[i]= ((cos_alpha * x[i] - sin_alpha * y[i]) as f32,
+                 (sin_alpha * x[i] + cos_alpha * y[i]) as f32);
     }
     res
 }
@@ -130,32 +139,36 @@ fn generate_level(level: &Level) -> Vec<(f32, f32)>
 fn create_gosper_fractal(max_level: u8) -> Vec<Level>
 {
     let mut levels = create_the_vector_of_levels();
-    for _i in 1..max_level {
+    for _i in 1..=max_level {
         append_new_level(&mut levels);
     }
     levels
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let root = BitMapBackend::new("0.png", (640, 480)).into_drawing_area();
+    let number_of_levels = 4_u8;
+    let filename = format!("{}.png", number_of_levels.to_string());
+    let root = BitMapBackend::new(&filename, (640*2, 640*2)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
-        .caption("y=x^2", ("sans-serif", 50).into_font())
+        // .caption("y=x^2", ("sans-serif", 50).into_font())
         .margin(5)
-        .x_label_area_size(30)
-        .y_label_area_size(30)
-        .build_ranged(-2f32..2f32, -2f32..2f32)?;
+        // .x_label_area_size(30)
+        // .y_label_area_size(30)
+        .build_ranged(-0.5f32..(7.0f32.sqrt() / 2.0_f32 + 0.5f32), -1.5f32..1f32)?;
+        //.build_ranged(-0.5f32..1.5f32, -1.5f32..0.5f32)?;
 
     chart.configure_mesh().draw()?;
 
-    let levels = create_gosper_fractal(5_u8);
+
+    let levels = create_gosper_fractal(number_of_levels);
     if let Some(last_level) = levels.last()
     {
         chart
         .draw_series(LineSeries::new(generate_level(last_level),
             &RED,
-        ))?
-        .label("y = x^2");
+        ))?;
+        // .label("y = x^2");
         // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
     }
 
