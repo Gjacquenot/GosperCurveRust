@@ -79,8 +79,9 @@ fn append_new_level(levels: &mut Vec<Level>)
 
 fn cosinus(key: u8) -> f64
 {
-    // k1 = cos(pi/3)
-    // k2 = sin(pi/3)
+    // Returns the cosinus value of an angle described
+    // by a key that is a multiple of pi/3.
+    // Here, k1 = cos(pi/3)
     let k1 = 0.5_f64;
     match key {
         0_u8 => 1.0_f64,
@@ -95,8 +96,9 @@ fn cosinus(key: u8) -> f64
 
 fn sinus(key: u8) -> f64
 {
-    // k1 = cos(pi/3)
-    // k2 = sin(pi/3)
+    // Returns the sinus value of an angle described
+    // by a key that is a multiple of pi/3.
+    // Here, k2 = sin(pi/3)
     let k2 = 3.0_f64.sqrt() / 2.0_f64;
     match key {
         0_u8 => 0.0_f64,
@@ -111,7 +113,9 @@ fn sinus(key: u8) -> f64
 
 fn generate_level(level: &Level) -> Vec<(f32, f32)>
 {
-    // convert the formal description of a level to a x, y curve
+    // Convert the formal description of a level to a x, y curve.
+    // Result is casted to a vector of tuples of float32 so that
+    // it can directly be used by the plotting library
     let scale = level.scale;
     let n = level.directions.len();
     let mut x: Vec<f64> = vec![0.0_f64; n + 1];
