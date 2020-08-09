@@ -14,7 +14,6 @@ struct Level {
     types: Vec<SegmentType>
 }
 
-
 fn create_initial_level() -> Level
 {
     Level{id: 0_u8,
@@ -145,9 +144,9 @@ fn create_gosper_fractal(max_level: u8) -> Vec<Level>
     levels
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let number_of_levels = 4_u8;
-    let filename = format!("{}.png", number_of_levels.to_string());
+fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>>
+{
+    let filename = format!("{}.png", level.id.to_string());
     let root = BitMapBackend::new(&filename, (640*2, 640*2)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
@@ -160,17 +159,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     chart.configure_mesh().draw()?;
 
-
-    let levels = create_gosper_fractal(number_of_levels);
-    if let Some(last_level) = levels.last()
-    {
-        chart
-        .draw_series(LineSeries::new(generate_level(last_level),
+    chart
+        .draw_series(LineSeries::new(generate_level(level),
             &RED,
         ))?;
         // .label("y = x^2");
         // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
-    }
 
     chart
         .configure_series_labels()
@@ -178,4 +172,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .border_style(&BLACK)
         .draw()?;
     Ok(())
+}
+
+fn main()
+{
+    let maximum_number_of_levels = 7_u8;
+    let levels = create_gosper_fractal(maximum_number_of_levels);
+    for level in levels
+    {
+        let _result = plot_level(&level);
+    }
 }
