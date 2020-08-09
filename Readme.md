@@ -5,6 +5,8 @@
 This repository contains a simple pet project in Rust that generates
 Gosper curves, that are recursive space filling curves.
 
+Run `cargo run` to build and run program.
+
 Program is run without argument and creates a list of PNG images that
 illustrate the recursive creation of the fractal.
 
