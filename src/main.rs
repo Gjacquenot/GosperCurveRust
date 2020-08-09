@@ -161,11 +161,11 @@ fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>>
         .build_ranged(-0.25f32..(7.0f32.sqrt() / 2.0_f32 + 0.25f32), -1.25f32..0.75f32)?;
         //.build_ranged(-0.5f32..1.5f32, -1.5f32..0.5f32)?;
 
-    chart.configure_mesh().draw()?;
+    // chart.configure_mesh().draw()?;
 
     chart
         .draw_series(LineSeries::new(generate_level(level),
-            &RED,
+            &BLACK,
         ))?;
         // .label("y = x^2");
         // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
@@ -180,7 +180,7 @@ fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>>
 
 fn main()
 {
-    let maximum_number_of_levels = 2_u8;
+    let maximum_number_of_levels = 7_u8;
     let levels = create_gosper_fractal(maximum_number_of_levels);
     for level in levels
     {
