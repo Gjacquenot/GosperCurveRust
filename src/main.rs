@@ -77,6 +77,15 @@ fn append_new_level(levels: &mut Vec<Level>)
     }
 }
 
+fn create_gosper_fractal(max_level: u8) -> Vec<Level>
+{
+    let mut levels = create_the_vector_of_levels();
+    for _i in 1..=max_level {
+        append_new_level(&mut levels);
+    }
+    levels
+}
+
 fn cosinus(key: u8) -> f64
 {
     // Returns the cosinus value of an angle described
@@ -139,15 +148,6 @@ fn generate_level(level: &Level) -> Vec<(f32, f32)>
     res
 }
 
-fn create_gosper_fractal(max_level: u8) -> Vec<Level>
-{
-    let mut levels = create_the_vector_of_levels();
-    for _i in 1..=max_level {
-        append_new_level(&mut levels);
-    }
-    levels
-}
-
 fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>>
 {
     let filename = format!("{}.png", level.id.to_string());
@@ -155,10 +155,10 @@ fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>>
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
         // .caption("y=x^2", ("sans-serif", 50).into_font())
-        .margin(5)
+        .margin(1)
         // .x_label_area_size(30)
         // .y_label_area_size(30)
-        .build_ranged(-0.5f32..(7.0f32.sqrt() / 2.0_f32 + 0.5f32), -1.5f32..1f32)?;
+        .build_ranged(-0.25f32..(7.0f32.sqrt() / 2.0_f32 + 0.25f32), -1.25f32..0.75f32)?;
         //.build_ranged(-0.5f32..1.5f32, -1.5f32..0.5f32)?;
 
     chart.configure_mesh().draw()?;
@@ -173,14 +173,14 @@ fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>>
     chart
         .configure_series_labels()
         .background_style(&WHITE.mix(0.8))
-        .border_style(&BLACK)
+        // .border_style(&BLACK)
         .draw()?;
     Ok(())
 }
 
 fn main()
 {
-    let maximum_number_of_levels = 7_u8;
+    let maximum_number_of_levels = 2_u8;
     let levels = create_gosper_fractal(maximum_number_of_levels);
     for level in levels
     {
