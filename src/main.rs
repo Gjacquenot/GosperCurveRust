@@ -130,6 +130,20 @@ fn sinus(key: u8) -> f64 {
     }
 }
 
+fn rotate_and_cast(x: &[f64], y: &[f64], angle: f64) -> Vec<(f32, f32)> {
+    let n = x.len();
+    let mut res: Vec<(f32, f32)> = vec![(0.0_f32, 0.0_f32); n];
+    let cos_alpha = angle.cos();
+    let sin_alpha = angle.sin();
+    for i in 0..n {
+        res[i] = (
+            (cos_alpha * x[i] - sin_alpha * y[i]) as f32,
+            (sin_alpha * x[i] + cos_alpha * y[i]) as f32,
+        );
+    }
+    res
+}
+
 fn generate_level(level: &Level) -> Vec<(f32, f32)> {
     // Convert the formal description of a level to a x, y curve.
     // Result is casted to a vector of tuples of float32 so that
@@ -138,23 +152,14 @@ fn generate_level(level: &Level) -> Vec<(f32, f32)> {
     let n = level.directions.len();
     let mut x: Vec<f64> = vec![0.0_f64; n + 1];
     let mut y: Vec<f64> = vec![0.0_f64; n + 1];
-    let mut res: Vec<(f32, f32)> = vec![(0.0_f32, 0.0_f32); n + 1];
     for i in 0..n {
         x[i + 1] = x[i] + scale * cosinus(level.directions[i]);
         y[i + 1] = y[i] + scale * sinus(level.directions[i]);
     }
 
     let index = level.id as f64;
-    let alpha = index * ((3.0_f64.sqrt() / 5.0).atan());
-    let cos_alpha = alpha.cos();
-    let sin_alpha = alpha.sin();
-    for i in 0..=n {
-        res[i] = (
-            (cos_alpha * x[i] - sin_alpha * y[i]) as f32,
-            (sin_alpha * x[i] + cos_alpha * y[i]) as f32,
-        );
-    }
-    res
+    let rotation_angle = index * ((3.0_f64.sqrt() / 5.0).atan());
+    rotate_and_cast(&x, &y, rotation_angle)
 }
 
 fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>> {
