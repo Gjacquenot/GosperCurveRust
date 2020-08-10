@@ -27,12 +27,12 @@ fn create_the_vector_of_levels() -> Vec<Level> {
 
 fn create_new_level(source_level: &Level) -> Level {
     // Create a new level from an existing one.
-    // This new level will seven times more segment than
-    // its parent level.
+    // This new level will have seven times more segment
+    // than its parent level.
 
     // Each segment will be replaced by seven new ones
     // with directions depending on the type of their
-    // parent
+    // parent.
 
     // New directions for a segment of type 1
     // t1 = 'abbaaab'
