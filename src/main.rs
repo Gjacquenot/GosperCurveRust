@@ -34,8 +34,8 @@ fn create_new_level(source_level: &Level) -> Level {
     // t2 = 'abbbaab'
     let d2: Vec<u8> = vec![1_u8, 0_u8, 0_u8, 4_u8, 3_u8, 5_u8, 0_u8];
 
-    let mut types = Vec::<SegmentType>::new();
-    let mut directions = Vec::<u8>::new();
+    let mut new_level_types = Vec::<SegmentType>::new();
+    let mut new_level_directions = Vec::<u8>::new();
     let n = source_level.directions.len();
     for i in 0..n {
         for j in 0..7 {
@@ -43,26 +43,26 @@ fn create_new_level(source_level: &Level) -> Level {
                 SegmentType::Type1 => {
                     match j {
                         0 | 3 | 4 | 5 => {
-                            types.push(SegmentType::Type1);
+                            new_level_types.push(SegmentType::Type1);
                         }
                         1 | 2 | 6 => {
-                            types.push(SegmentType::Type2);
+                            new_level_types.push(SegmentType::Type2);
                         }
                         _ => {}
                     }
-                    directions.push((source_level.directions[i] + d1[j]) % 6_u8);
+                    new_level_directions.push((source_level.directions[i] + d1[j]) % 6_u8);
                 }
                 SegmentType::Type2 => {
                     match j {
                         0 | 4 | 5 => {
-                            types.push(SegmentType::Type1);
+                            new_level_types.push(SegmentType::Type1);
                         }
                         1 | 2 | 3 | 6 => {
-                            types.push(SegmentType::Type2);
+                            new_level_types.push(SegmentType::Type2);
                         }
                         _ => {}
                     }
-                    directions.push((source_level.directions[i] + d2[j]) % 6_u8);
+                    new_level_directions.push((source_level.directions[i] + d2[j]) % 6_u8);
                 }
             }
         }
@@ -70,8 +70,8 @@ fn create_new_level(source_level: &Level) -> Level {
     Level {
         id: source_level.id + 1_u8,
         scale: source_level.scale / 7.0_f64.sqrt(),
-        directions: directions,
-        types: types,
+        directions: new_level_directions,
+        types: new_level_types,
     }
 }
 
@@ -151,7 +151,7 @@ fn generate_level(level: &Level) -> Vec<(f32, f32)> {
 
 fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>> {
     let filename = format!("{}.png", level.id.to_string());
-    let root = BitMapBackend::new(&filename, (640 * 2, 640 * 2)).into_drawing_area();
+    let root = BitMapBackend::new(&filename, (1280, 1280)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
         // .caption("y=x^2", ("sans-serif", 50).into_font())
@@ -172,6 +172,7 @@ fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>> {
 
     chart
         .configure_series_labels()
+        // .background_style(&WHITE.mix(0.8))
         .background_style(&WHITE.mix(0.8))
         // .border_style(&BLACK)
         .draw()?;
