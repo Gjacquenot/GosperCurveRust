@@ -1,12 +1,10 @@
 use plotters::prelude::*;
 
-// #[derive(Debug)]
 enum SegmentType {
     Type1,
     Type2,
 }
 
-// #[derive(Debug)]
 struct Level {
     id: u8,
     scale: f64,
@@ -29,10 +27,10 @@ fn create_the_vector_of_levels() -> Vec<Level> {
 
 fn create_new_level(source_level: &Level) -> Level {
     // t1 = 'abbaaab'
-    let d1: Vec<u8> = vec![0_u8, 5_u8, 3_u8, 4_u8, 0_u8, 0_u8, 1_u8];
+    let d1: Vec<u8> = vec![0, 5, 3, 4, 0, 0, 1];
 
     // t2 = 'abbbaab'
-    let d2: Vec<u8> = vec![1_u8, 0_u8, 0_u8, 4_u8, 3_u8, 5_u8, 0_u8];
+    let d2: Vec<u8> = vec![1, 0, 0, 4, 3, 5, 0];
 
     let mut new_level_types = Vec::<SegmentType>::new();
     let mut new_level_directions = Vec::<u8>::new();
@@ -140,7 +138,7 @@ fn generate_level(level: &Level) -> Vec<(f32, f32)> {
     let alpha = index * ((3.0_f64.sqrt() / 5.0).atan());
     let cos_alpha = alpha.cos();
     let sin_alpha = alpha.sin();
-    for i in 0..(n + 1) {
+    for i in 0..=n {
         res[i] = (
             (cos_alpha * x[i] - sin_alpha * y[i]) as f32,
             (sin_alpha * x[i] + cos_alpha * y[i]) as f32,
@@ -153,28 +151,16 @@ fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>> {
     let filename = format!("{}.png", level.id.to_string());
     let root = BitMapBackend::new(&filename, (1280, 1280)).into_drawing_area();
     root.fill(&WHITE)?;
-    let mut chart = ChartBuilder::on(&root)
-        // .caption("y=x^2", ("sans-serif", 50).into_font())
-        .margin(1)
-        // .x_label_area_size(30)
-        // .y_label_area_size(30)
-        .build_ranged(
-            -0.25f32..(7.0f32.sqrt() / 2.0_f32 + 0.25f32),
-            -1.25f32..0.75f32,
-        )?;
-    //.build_ranged(-0.5f32..1.5f32, -1.5f32..0.5f32)?;
-
-    // chart.configure_mesh().draw()?;
+    let mut chart = ChartBuilder::on(&root).margin(1).build_ranged(
+        -0.25f32..(7.0f32.sqrt() / 2.0_f32 + 0.25f32),
+        -1.25f32..0.75f32,
+    )?;
 
     chart.draw_series(LineSeries::new(generate_level(level), &BLACK))?;
-    // .label("y = x^2");
-    // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
 
     chart
         .configure_series_labels()
-        // .background_style(&WHITE.mix(0.8))
         .background_style(&WHITE.mix(0.8))
-        // .border_style(&BLACK)
         .draw()?;
     Ok(())
 }
