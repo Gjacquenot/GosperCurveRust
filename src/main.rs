@@ -27,11 +27,11 @@ fn create_the_vector_of_levels() -> Vec<Level> {
     vec![create_initial_level()]
 }
 
+/// Create a new level from an existing one.
+///
+/// This new level will have seven times more segment than its parent
+/// level.
 fn create_new_level(source_level: &Level) -> Level {
-    // Create a new level from an existing one.
-    // This new level will have seven times more segment
-    // than its parent level.
-
     // Each segment will be replaced by seven new ones
     // with directions depending on the type of their
     // parent.
@@ -100,10 +100,11 @@ fn create_gosper_fractal(max_level: u8) -> Vec<Level> {
     levels
 }
 
+/// Returns the cosinus value of an angle described by a key that is a
+/// multiple of pi/3.
+///
+/// Here, k1 = cos(pi/3)
 fn cosinus(key: u8) -> f64 {
-    // Returns the cosinus value of an angle described
-    // by a key that is a multiple of pi/3.
-    // Here, k1 = cos(pi/3)
     let k1 = 0.5;
     match key {
         0 => 1.0,
@@ -116,10 +117,11 @@ fn cosinus(key: u8) -> f64 {
     }
 }
 
+/// Returns the sinus value of an angle described by a key that is a
+/// multiple of pi/3.
+///
+/// Here, k2 = sin(pi/3)
 fn sinus(key: u8) -> f64 {
-    // Returns the sinus value of an angle described
-    // by a key that is a multiple of pi/3.
-    // Here, k2 = sin(pi/3)
     let k2 = 3.0_f64.sqrt() / 2.0;
     match key {
         0 => 0.0,
@@ -146,10 +148,11 @@ fn rotate_and_cast(x: &[f64], y: &[f64], angle: f64) -> Vec<(f32, f32)> {
     res
 }
 
+/// Convert the formal description of a level to a x, y curve.
+///
+/// Result is casted to a vector of tuples of float32 so that
+/// it can directly be used by the plotting library
 fn generate_level(level: &Level) -> Vec<(f32, f32)> {
-    // Convert the formal description of a level to a x, y curve.
-    // Result is casted to a vector of tuples of float32 so that
-    // it can directly be used by the plotting library
     let scale = level.scale;
     let n = level.directions.len();
     let mut x = vec![0.0_f64; n + 1];
