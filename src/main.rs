@@ -29,58 +29,96 @@ fn create_the_vector_of_levels() -> Vec<Level> {
     vec![Level::default()]
 }
 
-/// Create a new level from an existing one.
-///
-/// This new level will have seven times more segment than its parent
-/// level.
-fn create_new_level(source_level: &Level) -> Level {
-    // Each segment will be replaced by seven new ones
-    // with directions depending on the type of their
-    // parent.
+impl Level {
+    /// Create a new level from an existing one.
+    ///
+    /// This new level will have seven times more segment than its parent
+    /// level.
+    fn next(&self) -> Self {
+        // Each segment will be replaced by seven new ones
+        // with directions depending on the type of their
+        // parent.
 
-    // New directions for a segment of type 1
-    // t1 = 'abbaaab'
-    static D1: [u8; 7] = [0, 5, 3, 4, 0, 0, 1];
+        // New directions for a segment of type 1
+        // t1 = 'abbaaab'
+        static D1: [u8; 7] = [0, 5, 3, 4, 0, 0, 1];
 
-    // New directions for a segment of type 2
-    // t2 = 'abbbaab'
-    static D2: [u8; 7] = [1, 0, 0, 4, 3, 5, 0];
+        // New directions for a segment of type 2
+        // t2 = 'abbbaab'
+        static D2: [u8; 7] = [1, 0, 0, 4, 3, 5, 0];
 
-    let mut new_level_types = Vec::new();
-    let mut new_level_directions = Vec::new();
-    for (ty, dir) in source_level.types.iter().zip(&source_level.directions) {
-        for j in 0..7 {
-            match ty {
-                SegmentType::Type1 => {
-                    new_level_types.push(match j {
-                        0 | 3 | 4 | 5 => SegmentType::Type1,
-                        1 | 2 | 6 => SegmentType::Type2,
-                        _ => unreachable!(),
-                    });
-                    new_level_directions.push((dir + D1[j]) % 6);
-                }
-                SegmentType::Type2 => {
-                    new_level_types.push(match j {
-                        0 | 4 | 5 => SegmentType::Type1,
-                        1 | 2 | 3 | 6 => SegmentType::Type2,
-                        _ => unimplemented!(),
-                    });
-                    new_level_directions.push((dir + D2[j]) % 6);
+        let mut types = Vec::new();
+        let mut directions = Vec::new();
+        for (ty, dir) in self.types.iter().zip(&self.directions) {
+            for j in 0..7 {
+                match ty {
+                    SegmentType::Type1 => {
+                        types.push(match j {
+                            0 | 3 | 4 | 5 => SegmentType::Type1,
+                            1 | 2 | 6 => SegmentType::Type2,
+                            _ => unreachable!(),
+                        });
+                        directions.push((dir + D1[j]) % 6);
+                    }
+                    SegmentType::Type2 => {
+                        types.push(match j {
+                            0 | 4 | 5 => SegmentType::Type1,
+                            1 | 2 | 3 | 6 => SegmentType::Type2,
+                            _ => unimplemented!(),
+                        });
+                        directions.push((dir + D2[j]) % 6);
+                    }
                 }
             }
         }
+        Level {
+            id: self.id + 1,
+            scale: self.scale / 7.0_f64.sqrt(),
+            directions,
+            types,
+        }
     }
-    Level {
-        id: source_level.id + 1,
-        scale: source_level.scale / 7.0_f64.sqrt(),
-        directions: new_level_directions,
-        types: new_level_types,
+
+    /// Convert the formal description of a level to a x, y curve.
+    ///
+    /// Result is casted to a vector of tuples of float32 so that
+    /// it can directly be used by the plotting library
+    fn generate(&self) -> Vec<(f32, f32)> {
+        let scale = self.scale;
+        let n = self.directions.len();
+        let mut x = vec![0.0_f64; n + 1];
+        let mut y = vec![0.0_f64; n + 1];
+        for i in 0..n {
+            x[i + 1] = x[i] + scale * cosinus(self.directions[i]);
+            y[i + 1] = y[i] + scale * sinus(self.directions[i]);
+        }
+
+        let index = self.id as f64;
+        let rotation_angle = index * ((3.0_f64.sqrt() / 5.0).atan());
+        rotate_and_cast(&x, &y, rotation_angle)
+    }
+
+    fn plot(&self) -> Result<(), Error> {
+        let filename = format!("{}.png", self.id);
+        let root = BitMapBackend::new(&filename, (1280, 1280)).into_drawing_area();
+        root.fill(&WHITE)?;
+        let mut chart = ChartBuilder::on(&root)
+            .margin(1)
+            .build_ranged(-0.25..(7.0f32.sqrt() / 2.0 + 0.25), -1.25f32..0.75)?;
+
+        chart.draw_series(LineSeries::new(self.generate(), &BLACK))?;
+
+        chart
+            .configure_series_labels()
+            .background_style(&WHITE.mix(0.8))
+            .draw()?;
+        Ok(())
     }
 }
 
 fn append_new_level(levels: &mut Vec<Level>) {
     if let Some(last_level) = levels.last() {
-        let new_level = create_new_level(last_level);
+        let new_level = last_level.next();
         levels.push(new_level);
     }
 }
@@ -128,60 +166,18 @@ fn sinus(key: u8) -> f64 {
 }
 
 fn rotate_and_cast(x: &[f64], y: &[f64], angle: f64) -> Vec<(f32, f32)> {
-    let cos_alpha = angle.cos();
-    let sin_alpha = angle.sin();
+    let (sin, cos) = angle.sin_cos();
     x.iter()
         .zip(y)
-        .map(|(x, y)| {
-            (
-                (cos_alpha * x - sin_alpha * y) as f32,
-                (sin_alpha * x + cos_alpha * y) as f32,
-            )
-        })
+        .map(|(x, y)| ((cos * x - sin * y) as f32, (sin * x + cos * y) as f32))
         .collect()
-}
-
-/// Convert the formal description of a level to a x, y curve.
-///
-/// Result is casted to a vector of tuples of float32 so that
-/// it can directly be used by the plotting library
-fn generate_level(level: &Level) -> Vec<(f32, f32)> {
-    let scale = level.scale;
-    let n = level.directions.len();
-    let mut x = vec![0.0_f64; n + 1];
-    let mut y = vec![0.0_f64; n + 1];
-    for i in 0..n {
-        x[i + 1] = x[i] + scale * cosinus(level.directions[i]);
-        y[i + 1] = y[i] + scale * sinus(level.directions[i]);
-    }
-
-    let index = level.id as f64;
-    let rotation_angle = index * ((3.0_f64.sqrt() / 5.0).atan());
-    rotate_and_cast(&x, &y, rotation_angle)
-}
-
-fn plot_level(level: &Level) -> Result<(), Error> {
-    let filename = format!("{}.png", level.id.to_string());
-    let root = BitMapBackend::new(&filename, (1280, 1280)).into_drawing_area();
-    root.fill(&WHITE)?;
-    let mut chart = ChartBuilder::on(&root)
-        .margin(1)
-        .build_ranged(-0.25..(7.0f32.sqrt() / 2.0 + 0.25), -1.25f32..0.75)?;
-
-    chart.draw_series(LineSeries::new(generate_level(level), &BLACK))?;
-
-    chart
-        .configure_series_labels()
-        .background_style(&WHITE.mix(0.8))
-        .draw()?;
-    Ok(())
 }
 
 fn main() -> Result<(), Error> {
     let maximum_number_of_levels = 7;
     let levels = create_gosper_fractal(maximum_number_of_levels);
     for level in levels {
-        plot_level(&level)?;
+        level.plot()?;
     }
     Ok(())
 }
