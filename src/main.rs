@@ -48,17 +48,16 @@ fn create_new_level(source_level: &Level) -> Level {
 
     let mut new_level_types = Vec::new();
     let mut new_level_directions = Vec::new();
-    let n = source_level.directions.len();
-    for i in 0..n {
+    for (ty, dir) in source_level.types.iter().zip(&source_level.directions) {
         for j in 0..7 {
-            match source_level.types[i] {
+            match ty {
                 SegmentType::Type1 => {
                     new_level_types.push(match j {
                         0 | 3 | 4 | 5 => SegmentType::Type1,
                         1 | 2 | 6 => SegmentType::Type2,
                         _ => unreachable!(),
                     });
-                    new_level_directions.push((source_level.directions[i] + D1[j]) % 6);
+                    new_level_directions.push((dir + D1[j]) % 6);
                 }
                 SegmentType::Type2 => {
                     new_level_types.push(match j {
@@ -66,7 +65,7 @@ fn create_new_level(source_level: &Level) -> Level {
                         1 | 2 | 3 | 6 => SegmentType::Type2,
                         _ => unimplemented!(),
                     });
-                    new_level_directions.push((source_level.directions[i] + D2[j]) % 6);
+                    new_level_directions.push((dir + D2[j]) % 6);
                 }
             }
         }
@@ -129,17 +128,17 @@ fn sinus(key: u8) -> f64 {
 }
 
 fn rotate_and_cast(x: &[f64], y: &[f64], angle: f64) -> Vec<(f32, f32)> {
-    let n = x.len();
-    let mut res = vec![(0.0_f32, 0.0_f32); n];
     let cos_alpha = angle.cos();
     let sin_alpha = angle.sin();
-    for i in 0..n {
-        res[i] = (
-            (cos_alpha * x[i] - sin_alpha * y[i]) as f32,
-            (sin_alpha * x[i] + cos_alpha * y[i]) as f32,
-        );
-    }
-    res
+    x.iter()
+        .zip(y)
+        .map(|(x, y)| {
+            (
+                (cos_alpha * x - sin_alpha * y) as f32,
+                (sin_alpha * x + cos_alpha * y) as f32,
+            )
+        })
+        .collect()
 }
 
 /// Convert the formal description of a level to a x, y curve.
