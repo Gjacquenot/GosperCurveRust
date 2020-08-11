@@ -1,5 +1,7 @@
 use plotters::prelude::*;
 
+type Error = Box<dyn std::error::Error + 'static>;
+
 enum SegmentType {
     Type1,
     Type2,
@@ -162,7 +164,7 @@ fn generate_level(level: &Level) -> Vec<(f32, f32)> {
     rotate_and_cast(&x, &y, rotation_angle)
 }
 
-fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>> {
+fn plot_level(level: &Level) -> Result<(), Error> {
     let filename = format!("{}.png", level.id.to_string());
     let root = BitMapBackend::new(&filename, (1280, 1280)).into_drawing_area();
     root.fill(&WHITE)?;
@@ -179,10 +181,11 @@ fn plot_level(level: &Level) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn main() {
+fn main() -> Result<(), Error> {
     let maximum_number_of_levels = 7;
     let levels = create_gosper_fractal(maximum_number_of_levels);
     for level in levels {
-        let _result = plot_level(&level);
+        plot_level(&level)?;
     }
+    Ok(())
 }
