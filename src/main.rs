@@ -38,11 +38,11 @@ fn create_new_level(source_level: &Level) -> Level {
 
     // New directions for a segment of type 1
     // t1 = 'abbaaab'
-    let d1 = vec![0u8, 5, 3, 4, 0, 0, 1];
+    static D1: [u8; 7] = [0, 5, 3, 4, 0, 0, 1];
 
     // New directions for a segment of type 2
     // t2 = 'abbbaab'
-    let d2 = vec![1u8, 0, 0, 4, 3, 5, 0];
+    static D2: [u8; 7] = [1, 0, 0, 4, 3, 5, 0];
 
     let mut new_level_types = Vec::new();
     let mut new_level_directions = Vec::new();
@@ -60,7 +60,7 @@ fn create_new_level(source_level: &Level) -> Level {
                         }
                         _ => {}
                     }
-                    new_level_directions.push((source_level.directions[i] + d1[j]) % 6);
+                    new_level_directions.push((source_level.directions[i] + D1[j]) % 6);
                 }
                 SegmentType::Type2 => {
                     match j {
@@ -72,7 +72,7 @@ fn create_new_level(source_level: &Level) -> Level {
                         }
                         _ => {}
                     }
-                    new_level_directions.push((source_level.directions[i] + d2[j]) % 6);
+                    new_level_directions.push((source_level.directions[i] + D2[j]) % 6);
                 }
             }
         }
