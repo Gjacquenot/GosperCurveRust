@@ -14,17 +14,19 @@ struct Level {
     types: Vec<SegmentType>,
 }
 
-fn create_initial_level() -> Level {
-    Level {
-        id: 0_u8,
-        scale: 7.0_f64.sqrt() / 2.0,
-        directions: vec![0],
-        types: vec![SegmentType::Type1],
+impl Default for Level {
+    fn default() -> Self {
+        Level {
+            id: 0_u8,
+            scale: 7.0_f64.sqrt() / 2.0,
+            directions: vec![0],
+            types: vec![SegmentType::Type1],
+        }
     }
 }
 
 fn create_the_vector_of_levels() -> Vec<Level> {
-    vec![create_initial_level()]
+    vec![Level::default()]
 }
 
 /// Create a new level from an existing one.
@@ -51,27 +53,19 @@ fn create_new_level(source_level: &Level) -> Level {
         for j in 0..7 {
             match source_level.types[i] {
                 SegmentType::Type1 => {
-                    match j {
-                        0 | 3 | 4 | 5 => {
-                            new_level_types.push(SegmentType::Type1);
-                        }
-                        1 | 2 | 6 => {
-                            new_level_types.push(SegmentType::Type2);
-                        }
-                        _ => {}
-                    }
+                    new_level_types.push(match j {
+                        0 | 3 | 4 | 5 => SegmentType::Type1,
+                        1 | 2 | 6 => SegmentType::Type2,
+                        _ => unreachable!(),
+                    });
                     new_level_directions.push((source_level.directions[i] + D1[j]) % 6);
                 }
                 SegmentType::Type2 => {
-                    match j {
-                        0 | 4 | 5 => {
-                            new_level_types.push(SegmentType::Type1);
-                        }
-                        1 | 2 | 3 | 6 => {
-                            new_level_types.push(SegmentType::Type2);
-                        }
-                        _ => {}
-                    }
+                    new_level_types.push(match j {
+                        0 | 4 | 5 => SegmentType::Type1,
+                        1 | 2 | 3 | 6 => SegmentType::Type2,
+                        _ => unimplemented!(),
+                    });
                     new_level_directions.push((source_level.directions[i] + D2[j]) % 6);
                 }
             }
