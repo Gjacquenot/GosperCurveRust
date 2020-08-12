@@ -64,7 +64,7 @@ impl Level {
                         types.push(match j {
                             0 | 4 | 5 => SegmentType::Type1,
                             1 | 2 | 3 | 6 => SegmentType::Type2,
-                            _ => unimplemented!(),
+                            _ => unreachable!(),
                         });
                         directions.push((dir + D2[j]) % 6);
                     }
